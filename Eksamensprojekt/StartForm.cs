@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -15,6 +16,24 @@ namespace Eksamensprojekt
         public StartForm()
         {
             InitializeComponent();
+        }
+
+        private void makeOrEditButton_Click(object sender, EventArgs e)
+        {
+            this.Visible = false;
+
+            new QuizCreator().ShowDialog();
+            
+            this.Close();
+        }
+
+        private void takeQuizButton_Click(object sender, EventArgs e)
+        {
+            this.Visible = false;
+
+            new QuizCreator().ShowDialog();
+
+            this.Close();
         }
     }
 }

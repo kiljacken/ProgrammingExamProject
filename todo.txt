@@ -1,0 +1,13 @@
+Menu functionality:
+  Open
+  Save
+  Exit
+
+Adding answers
+Selecting/Adding images
+
+Quiz answering part
+
+Ask user to save on exit?
+
+Remove quiz name/description?

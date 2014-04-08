@@ -12,86 +12,89 @@ using System.Xml.Serialization;
 namespace Eksamensprojekt
 {
     [Serializable()]
-    class Quiz
+    public class Quiz
     {
-        public String Name;
-        public String Description;
-        public IList<QuestionReference> QuestionReferences;
-        public IList<ImageReference> ImageReferences;
+        public String Name = "";
+        public String Description = "";
+        public List<QuestionReference> QuestionReferences = new List<QuestionReference>();
+        public List<ImageReference> ImageReferences = new List<ImageReference>();
 
         [field: NonSerialized()]
-        public IList<Question> Questions;
+        public List<Question> Questions;
 
         [field: NonSerialized()]
-        public IList<Image> Images;
+        public List<Image> Images;
 
         public static Quiz LoadFromZip(String path)
         {
-            ZipArchive archive = ZipFile.Open(path, ZipArchiveMode.Read);
-            ZipArchiveEntry quizEntry = archive.GetEntry("quiz.xml");
-
             Quiz quiz = null;
-            using (Stream stream = quizEntry.Open())
+
+            using (ZipArchive archive = ZipFile.Open(path, ZipArchiveMode.Read))
             {
-                XmlSerializer x = new XmlSerializer(typeof(Quiz));
-                quiz = (Quiz)x.Deserialize(stream);
+                ZipArchiveEntry quizEntry = archive.GetEntry("quiz.xml");
+
+                using (Stream stream = quizEntry.Open())
+                {
+                    XmlSerializer x = new XmlSerializer(typeof(Quiz));
+                    quiz = (Quiz)x.Deserialize(stream);
+                }
+
+                quiz.Questions = new List<Question>(quiz.QuestionReferences.Count);
+                for (int i = 0; i < quiz.QuestionReferences.Count; i++)
+                {
+                    QuestionReference reference = quiz.QuestionReferences[i];
+                    quiz.Questions.Add(reference.LoadQuestion(archive));
+                }
+
+                quiz.Images = new List<Image>(quiz.ImageReferences.Count);
+                for (int i = 0; i < quiz.ImageReferences.Count; i++)
+                {
+                    ImageReference reference = quiz.ImageReferences[i];
+                    quiz.Images.Add(reference.LoadImage(archive));
+                }
             }
-
-            quiz.Questions = new List<Question>(quiz.QuestionReferences.Count);
-            for (int i = 0; i < quiz.QuestionReferences.Count; i++)
-			{
-                QuestionReference reference = quiz.QuestionReferences[i];
-			    quiz.Questions.Add(reference.LoadQuestion(archive));
-			}
-
-            quiz.Images = new List<Image>(quiz.ImageReferences.Count);
-            for (int i = 0; i < quiz.ImageReferences.Count; i++)
-			{
-                ImageReference reference = quiz.ImageReferences[i];
-                quiz.Images.Add(reference.LoadImage(archive));
-			}
 
             return quiz;
         }
 
         public static void StoreToZip(Quiz quiz, String path)
         {
-            ZipArchive archive = ZipFile.Open(path, ZipArchiveMode.Update);
-
-            quiz.ImageReferences.Clear();
-            for (int i = 0; i < quiz.Images.Count; i++)
+            using (ZipArchive archive = ZipFile.Open(path, ZipArchiveMode.Update))
             {
-                Image image = quiz.Images[i];
-                ImageReference reference = new ImageReference { Path = "image" + i + ".png" };
-                quiz.ImageReferences.Add(reference);
+                quiz.ImageReferences.Clear();
+                for (int i = 0; i < quiz.Images.Count; i++)
+                {
+                    Image image = quiz.Images[i];
+                    ImageReference reference = new ImageReference { Path = "image" + i + ".png" };
+                    quiz.ImageReferences.Add(reference);
 
-                reference.SaveImage(image, archive);
-            }
+                    reference.SaveImage(image, archive);
+                }
 
-            quiz.QuestionReferences.Clear();
-            for (int i = 0; i < quiz.Questions.Count; i++)
-            {
-                Question question = quiz.Questions[i];
-                QuestionReference reference = new QuestionReference { Path = "question" + i + ".xml" };
-                quiz.QuestionReferences.Add(reference);
+                quiz.QuestionReferences.Clear();
+                for (int i = 0; i < quiz.Questions.Count; i++)
+                {
+                    Question question = quiz.Questions[i];
+                    QuestionReference reference = new QuestionReference { Path = "question" + i + ".xml" };
+                    quiz.QuestionReferences.Add(reference);
 
-                reference.SaveQuestion(question, archive);
-            }
+                    reference.SaveQuestion(question, archive);
+                }
 
-            ZipArchiveEntry quizEntry = archive.CreateEntry("quiz.xml");
-            using (Stream stream = quizEntry.Open())
-            {
-                XmlSerializer x = new XmlSerializer(typeof(Quiz));
-                x.Serialize(stream, quiz);
+                ZipArchiveEntry quizEntry = archive.CreateEntry("quiz.xml");
+                using (Stream stream = quizEntry.Open())
+                {
+                    XmlSerializer x = new XmlSerializer(typeof(Quiz));
+                    x.Serialize(stream, quiz);
+                }
             }
         }
-
     }
 
     [Serializable()]
-    class QuestionReference
+    public class QuestionReference
     {
-        public String Path;
+        public String Path = "";
 
         public Question LoadQuestion(ZipArchive archive)
         {
@@ -100,6 +103,7 @@ namespace Eksamensprojekt
             {
                 XmlSerializer x = new XmlSerializer(typeof(Question));
                 question = (Question)x.Deserialize(stream);
+                question.QuestionId = Path;
             }
 
             return question;
@@ -118,22 +122,32 @@ namespace Eksamensprojekt
     }
 
     [Serializable()]
-    class Question
+    public class Question
     {
-        public QuestionType Type;
-        public String Text;
-        public int ImageIndex;
+        [field: NonSerialized()]
+        public String QuestionId;
+
+        public QuestionType Type = QuestionType.TEXT;
+        public String Text = "";
+        public int ImageIndex = -1;
+        public List<String> Answers = new List<String>();
+
+        public override String ToString()
+        {
+            return QuestionId;
+        }
     }
 
-    enum QuestionType
+    [Serializable()]
+    public enum QuestionType
     {
         TEXT, IMAGE
     }
 
     [Serializable()]
-    class ImageReference
+    public class ImageReference
     {
-        public String Path;
+        public String Path = "";
 
         public Image LoadImage(ZipArchive archive)
         {
