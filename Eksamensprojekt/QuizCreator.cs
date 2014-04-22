@@ -83,6 +83,8 @@ namespace Eksamensprojekt
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            savePreviousQuestion();
+
             SaveFileDialog dialog = new SaveFileDialog();
 
             dialog.Filter = "Quiz Files (.qzi)|*.qzi";

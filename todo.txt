@@ -1,3 +1,5 @@
+Implement error catching in I/O functionality
+
 Selecting/Adding images
 
 Quiz answering part
