@@ -59,34 +59,58 @@ namespace Eksamensprojekt
 
         public static void StoreToZip(Quiz quiz, String path)
         {
-            using (ZipArchive archive = ZipFile.Open(path, ZipArchiveMode.Update))
+            Boolean cleanup = false;
+            if (File.Exists(path))
             {
-                quiz.ImageReferences.Clear();
-                for (int i = 0; i < quiz.Images.Count; i++)
+                File.Move(path, Path.ChangeExtension(path, "tqz");
+                cleanup = true;
+            }
+
+            try
+            {
+                using (ZipArchive archive = ZipFile.Open(path, ZipArchiveMode.Create))
                 {
-                    Image image = quiz.Images[i];
-                    ImageReference reference = new ImageReference { Path = "image" + i + ".png" };
-                    quiz.ImageReferences.Add(reference);
+                    quiz.ImageReferences.Clear();
+                    for (int i = 0; i < quiz.Images.Count; i++)
+                    {
+                        Image image = quiz.Images[i];
+                        ImageReference reference = new ImageReference { Path = "image" + i + ".png" };
+                        quiz.ImageReferences.Add(reference);
 
-                    reference.SaveImage(image, archive);
+                        reference.SaveImage(image, archive);
+                    }
+
+                    quiz.QuestionReferences.Clear();
+                    for (int i = 0; i < quiz.Questions.Count; i++)
+                    {
+                        Question question = quiz.Questions[i];
+                        QuestionReference reference = new QuestionReference { Path = "question" + i + ".xml" };
+                        quiz.QuestionReferences.Add(reference);
+
+                        reference.SaveQuestion(question, archive);
+                    }
+
+                    ZipArchiveEntry quizEntry = archive.CreateEntry("quiz.xml");
+                    using (Stream stream = quizEntry.Open())
+                    {
+                        XmlSerializer x = new XmlSerializer(typeof(Quiz));
+                        x.Serialize(stream, quiz);
+                    }
                 }
-
-                quiz.QuestionReferences.Clear();
-                for (int i = 0; i < quiz.Questions.Count; i++)
+            }
+            catch
+            {
+                if (cleanup && File.Exists(Path.ChangeExtension(path, "tqz")))
                 {
-                    Question question = quiz.Questions[i];
-                    QuestionReference reference = new QuestionReference { Path = "question" + i + ".xml" };
-                    quiz.QuestionReferences.Add(reference);
-
-                    reference.SaveQuestion(question, archive);
+                    File.Move(Path.ChangeExtension(path, "tqz"), path);
+                    return;
                 }
+            }
 
-                ZipArchiveEntry quizEntry = archive.CreateEntry("quiz.xml");
-                using (Stream stream = quizEntry.Open())
-                {
-                    XmlSerializer x = new XmlSerializer(typeof(Quiz));
-                    x.Serialize(stream, quiz);
-                }
+            if (cleanup && File.Exists(Path.ChangeExtension(path, "tqz")))
+            {
+                File.Delete(Path.ChangeExtension(path, "tqz");
+                return;
             }
         }
     }
