@@ -62,7 +62,7 @@ namespace Eksamensprojekt
             Boolean cleanup = false;
             if (File.Exists(path))
             {
-                File.Move(path, Path.ChangeExtension(path, "tqz");
+                File.Move(path, Path.ChangeExtension(path, "tqz"));
                 cleanup = true;
             }
 
@@ -109,7 +109,7 @@ namespace Eksamensprojekt
 
             if (cleanup && File.Exists(Path.ChangeExtension(path, "tqz")))
             {
-                File.Delete(Path.ChangeExtension(path, "tqz");
+                File.Delete(Path.ChangeExtension(path, "tqz"));
                 return;
             }
         }
