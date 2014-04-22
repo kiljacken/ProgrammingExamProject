@@ -103,7 +103,6 @@ namespace Eksamensprojekt
             {
                 XmlSerializer x = new XmlSerializer(typeof(Question));
                 question = (Question)x.Deserialize(stream);
-                question.QuestionId = Path;
             }
 
             return question;
@@ -124,7 +123,6 @@ namespace Eksamensprojekt
     [Serializable()]
     public class Question
     {
-        [field: NonSerialized()]
         public String QuestionId;
 
         public QuestionType Type = QuestionType.TEXT;
