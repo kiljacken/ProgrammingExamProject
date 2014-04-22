@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,6 +22,7 @@ namespace Eksamensprojekt
             InitializeComponent();
         }
 
+        #region Setup
         private void QuizCreator_Load(object sender, EventArgs e)
         {
             setupNew();
@@ -28,7 +30,38 @@ namespace Eksamensprojekt
             questionTypeComboBox.DataSource = Enum.GetValues(typeof(QuestionType));
             questionTypeComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
         }
+        
+        private void setupNew()
+        {
+            quiz = new Quiz();
+            quiz.Name = "Unnamed Quiz";
+            quiz.Description = "Descriptionless";
+            quiz.QuestionReferences = new List<QuestionReference>();
+            quiz.ImageReferences = new List<ImageReference>();
+            quiz.Questions = new List<Question>();
+            quiz.Images = new List<Image>();
 
+            previouslySelectedQuestion = null;
+
+            setupList();
+
+            addQuestionButton_Click(null, null);
+        }
+
+        private void setupList()
+        {
+            questionListBox.DataSource = null;
+            questionListBox.DataSource = quiz.Questions;
+        }
+
+        private void setupAnswers()
+        {
+            answersListBox.DataSource = null;
+            answersListBox.DataSource = previouslySelectedQuestion.Answers;
+        }
+        #endregion
+
+        #region Tool Strip Menu
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             setupNew();
@@ -64,33 +97,14 @@ namespace Eksamensprojekt
         private void quitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
-        }
+        } 
+        #endregion
 
+        #region Question Selection
         private void questionListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             savePreviousQuestion();
             loadSelectedQuestion();
-        }
-
-        private void setupNew()
-        {
-            quiz = new Quiz();
-            quiz.Name = "Unnamed Quiz";
-            quiz.Description = "Descriptionless";
-            quiz.QuestionReferences = new List<QuestionReference>();
-            quiz.ImageReferences = new List<ImageReference>();
-            quiz.Questions = new List<Question>();
-            quiz.Images = new List<Image>();
-
-            setupList();
-
-            addQuestionButton_Click(null, null);
-        }
-
-        private void setupList()
-        {
-            questionListBox.DataSource = null;
-            questionListBox.DataSource = quiz.Questions;
         }
 
         private void savePreviousQuestion()
@@ -98,14 +112,8 @@ namespace Eksamensprojekt
             if (previouslySelectedQuestion == null)
                 return;
 
-            previouslySelectedQuestion.Type = (QuestionType) questionTypeComboBox.SelectedValue;
+            previouslySelectedQuestion.Type = (QuestionType)questionTypeComboBox.SelectedValue;
             previouslySelectedQuestion.Text = questionTextBox.Text;
-            previouslySelectedQuestion.Answers.Clear();
-
-            foreach (String answer in answersListBox.Items)
-            {
-                previouslySelectedQuestion.Answers.Add(answer);
-            }
         }
 
         private void loadSelectedQuestion()
@@ -113,15 +121,17 @@ namespace Eksamensprojekt
             if (questionListBox.SelectedItem == null)
                 return;
 
-            Question question = (Question) questionListBox.SelectedItem;
+            Question question = (Question)questionListBox.SelectedItem;
 
             questionTypeComboBox.SelectedItem = question.Type;
             questionTextBox.Text = question.Text;
-            answersListBox.DataSource = question.Answers;
 
             previouslySelectedQuestion = question;
-        }
+            setupAnswers();
+        } 
+        #endregion
 
+        #region Question List
         private void addQuestionButton_Click(object sender, EventArgs e)
         {
             Question question = new Question();
@@ -142,6 +152,46 @@ namespace Eksamensprojekt
             quiz.Questions.Remove(question);
 
             setupList();
+        } 
+        #endregion
+
+        #region Answer List
+        private void addAnswerButton_Click(object sender, EventArgs e)
+        {
+            String answer = Interaction.InputBox("Input answer here", "Answer creation");
+            if (answer.Length > 0)
+            {
+                previouslySelectedQuestion.Answers.Add(answer);
+                setupAnswers();
+            }
         }
+
+        private void editAnswerButton_Click(object sender, EventArgs e)
+        {
+            int index = answersListBox.SelectedIndex;
+
+            String answer = Interaction.InputBox("Input answer here", "Answer creation", (String)answersListBox.Items[index]);
+            if (answer.Length > 0)
+            {
+                previouslySelectedQuestion.Answers.RemoveAt(index);
+                previouslySelectedQuestion.Answers.Insert(index, answer);
+                setupAnswers();
+            }
+        }
+
+        private void removeAnswerButton_Click(object sender, EventArgs e)
+        {
+            if (answersListBox.SelectedIndex > -1)
+            {
+                previouslySelectedQuestion.Answers.RemoveAt(answersListBox.SelectedIndex);
+                setupAnswers();
+            }
+        }
+
+        private void answersListBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            editAnswerButton.Enabled = answersListBox.SelectedIndex > -1;
+        }
+        #endregion
     }
 }

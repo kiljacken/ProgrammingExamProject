@@ -48,6 +48,7 @@
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.quitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editAnswerButton = new System.Windows.Forms.Button();
             this.questionGroupBox.SuspendLayout();
             this.mainMenuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -83,6 +84,7 @@
             // 
             // questionGroupBox
             // 
+            this.questionGroupBox.Controls.Add(this.editAnswerButton);
             this.questionGroupBox.Controls.Add(this.removeAnswerButton);
             this.questionGroupBox.Controls.Add(this.addAnswerButton);
             this.questionGroupBox.Controls.Add(this.answersListBox);
@@ -106,6 +108,7 @@
             this.removeAnswerButton.TabIndex = 8;
             this.removeAnswerButton.Text = "Remove";
             this.removeAnswerButton.UseVisualStyleBackColor = true;
+            this.removeAnswerButton.Click += new System.EventHandler(this.removeAnswerButton_Click);
             // 
             // addAnswerButton
             // 
@@ -115,6 +118,7 @@
             this.addAnswerButton.TabIndex = 7;
             this.addAnswerButton.Text = "Add";
             this.addAnswerButton.UseVisualStyleBackColor = true;
+            this.addAnswerButton.Click += new System.EventHandler(this.addAnswerButton_Click);
             // 
             // answersListBox
             // 
@@ -123,6 +127,7 @@
             this.answersListBox.Name = "answersListBox";
             this.answersListBox.Size = new System.Drawing.Size(375, 173);
             this.answersListBox.TabIndex = 6;
+            this.answersListBox.SelectedIndexChanged += new System.EventHandler(this.answersListBox_SelectedIndexChanged);
             // 
             // answersLabel
             // 
@@ -200,35 +205,46 @@
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.newToolStripMenuItem.Text = "&New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.openToolStripMenuItem.Text = "&Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.saveToolStripMenuItem.Text = "&Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(97, 6);
             // 
             // quitToolStripMenuItem
             // 
             this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
-            this.quitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.quitToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.quitToolStripMenuItem.Text = "&Quit";
             this.quitToolStripMenuItem.Click += new System.EventHandler(this.quitToolStripMenuItem_Click);
+            // 
+            // editAnswerButton
+            // 
+            this.editAnswerButton.Enabled = false;
+            this.editAnswerButton.Location = new System.Drawing.Point(91, 272);
+            this.editAnswerButton.Name = "editAnswerButton";
+            this.editAnswerButton.Size = new System.Drawing.Size(75, 23);
+            this.editAnswerButton.TabIndex = 9;
+            this.editAnswerButton.Text = "Edit";
+            this.editAnswerButton.UseVisualStyleBackColor = true;
+            this.editAnswerButton.Click += new System.EventHandler(this.editAnswerButton_Click);
             // 
             // QuizCreator
             // 
@@ -275,5 +291,6 @@
         private System.Windows.Forms.ListBox answersListBox;
         private System.Windows.Forms.Label answersLabel;
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
+        private System.Windows.Forms.Button editAnswerButton;
     }
 }
