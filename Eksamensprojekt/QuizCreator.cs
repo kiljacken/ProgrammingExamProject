@@ -16,6 +16,7 @@ namespace Eksamensprojekt
     {
         private Quiz quiz;
         private Question previouslySelectedQuestion;
+        private int lastIndex = -1;
 
         public QuizCreator()
         {
@@ -77,7 +78,8 @@ namespace Eksamensprojekt
             if (dialog.ShowDialog() == DialogResult.OK)
             {
                 quiz = Quiz.LoadFromZip(dialog.FileName);
-                setupList();
+                if (quiz != null)
+                    setupList();    
             }
         }
 
@@ -105,8 +107,22 @@ namespace Eksamensprojekt
         #region Question Selection
         private void questionListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (questionListBox.SelectedIndex == lastIndex)
+                return;
+
+            int nil;
+            if ((QuestionType) questionTypeComboBox.SelectedValue == QuestionType.IMAGE &&
+                !Int32.TryParse(questionTextBox.Text, out nil))
+            {
+                MessageBox.Show("Please select a image for the question!");
+
+                questionListBox.SelectedIndex = lastIndex;
+                return;
+            }
+
             savePreviousQuestion();
             loadSelectedQuestion();
+            lastIndex = questionListBox.SelectedIndex;
         }
 
         private void savePreviousQuestion()
@@ -115,7 +131,16 @@ namespace Eksamensprojekt
                 return;
 
             previouslySelectedQuestion.Type = (QuestionType)questionTypeComboBox.SelectedValue;
-            previouslySelectedQuestion.Text = questionTextBox.Text;
+
+            if (previouslySelectedQuestion.Type == QuestionType.TEXT)
+            {
+                previouslySelectedQuestion.Text = questionTextBox.Text;
+            }
+            else
+            {
+                previouslySelectedQuestion.ImageIndex = Int32.Parse(questionTextBox.Text);
+            }
+            
         }
 
         private void loadSelectedQuestion()
@@ -126,11 +151,19 @@ namespace Eksamensprojekt
             Question question = (Question)questionListBox.SelectedItem;
 
             questionTypeComboBox.SelectedItem = question.Type;
-            questionTextBox.Text = question.Text;
+
+            if (question.Type == QuestionType.TEXT)
+            {
+                questionTextBox.Text = question.Text;
+            }
+            else
+            {
+                questionTextBox.Text = question.ImageIndex.ToString();
+            }
 
             previouslySelectedQuestion = question;
             setupAnswers();
-        } 
+        }
         #endregion
 
         #region Question List
@@ -195,5 +228,30 @@ namespace Eksamensprojekt
             editAnswerButton.Enabled = answersListBox.SelectedIndex > -1;
         }
         #endregion
+
+        private void selectImageButton_Click(object sender, EventArgs e)
+        {
+            ImageDialog dialog = new ImageDialog(quiz);
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                questionTextBox.Text = dialog.selectedIndex.ToString();
+            }
+        }
+
+        private void questionTypeComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            questionTextBox.Text = "";
+            if ((QuestionType) questionTypeComboBox.SelectedValue == QuestionType.TEXT)
+            {
+                questionTextBox.Enabled = true;
+                selectImageButton.Enabled = false;
+            }
+            else
+            {
+                questionTextBox.Enabled = false;
+                selectImageButton.Enabled = true;
+            }
+        }
     }
 }

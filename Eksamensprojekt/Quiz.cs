@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Xml.Serialization;
 
 namespace Eksamensprojekt
@@ -14,8 +15,6 @@ namespace Eksamensprojekt
     [Serializable()]
     public class Quiz
     {
-        public String Name = "";
-        public String Description = "";
         public List<QuestionReference> QuestionReferences = new List<QuestionReference>();
         public List<ImageReference> ImageReferences = new List<ImageReference>();
 
@@ -25,33 +24,58 @@ namespace Eksamensprojekt
         [field: NonSerialized()]
         public List<Image> Images;
 
+        public void RemoveImage(int index)
+        {
+            foreach (var question in Questions)
+            {
+                if (question.ImageIndex > index)
+                {
+                    question.ImageIndex--;
+                }
+                else if (question.ImageIndex == index)
+                {
+                    question.ImageIndex = -1;
+                }
+            }
+
+            Images.RemoveAt(index);
+        }
+
         public static Quiz LoadFromZip(String path)
         {
             Quiz quiz = null;
 
-            using (ZipArchive archive = ZipFile.Open(path, ZipArchiveMode.Read))
+            try
             {
-                ZipArchiveEntry quizEntry = archive.GetEntry("quiz.xml");
-
-                using (Stream stream = quizEntry.Open())
+                using (ZipArchive archive = ZipFile.Open(path, ZipArchiveMode.Read))
                 {
-                    XmlSerializer x = new XmlSerializer(typeof(Quiz));
-                    quiz = (Quiz)x.Deserialize(stream);
-                }
+                    ZipArchiveEntry quizEntry = archive.GetEntry("quiz.xml");
 
-                quiz.Questions = new List<Question>(quiz.QuestionReferences.Count);
-                for (int i = 0; i < quiz.QuestionReferences.Count; i++)
-                {
-                    QuestionReference reference = quiz.QuestionReferences[i];
-                    quiz.Questions.Add(reference.LoadQuestion(archive));
-                }
+                    using (Stream stream = quizEntry.Open())
+                    {
+                        XmlSerializer x = new XmlSerializer(typeof(Quiz));
+                        quiz = (Quiz)x.Deserialize(stream);
+                    }
 
-                quiz.Images = new List<Image>(quiz.ImageReferences.Count);
-                for (int i = 0; i < quiz.ImageReferences.Count; i++)
-                {
-                    ImageReference reference = quiz.ImageReferences[i];
-                    quiz.Images.Add(reference.LoadImage(archive));
+                    quiz.Questions = new List<Question>(quiz.QuestionReferences.Count);
+                    for (int i = 0; i < quiz.QuestionReferences.Count; i++)
+                    {
+                        QuestionReference reference = quiz.QuestionReferences[i];
+                        quiz.Questions.Add(reference.LoadQuestion(archive));
+                    }
+
+                    quiz.Images = new List<Image>(quiz.ImageReferences.Count);
+                    for (int i = 0; i < quiz.ImageReferences.Count; i++)
+                    {
+                        ImageReference reference = quiz.ImageReferences[i];
+                        quiz.Images.Add(reference.LoadImage(archive));
+                    }
                 }
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show("An error occured while loading the quiz:\n" + e.ToString());
+                return null;
             }
 
             return quiz;
@@ -98,13 +122,15 @@ namespace Eksamensprojekt
                     }
                 }
             }
-            catch
+            catch(Exception e)
             {
                 if (cleanup && File.Exists(Path.ChangeExtension(path, "tqz")))
                 {
                     File.Move(Path.ChangeExtension(path, "tqz"), path);
                     return;
                 }
+
+                MessageBox.Show("Error while saving quiz:\n" + e.ToString());
             }
 
             if (cleanup && File.Exists(Path.ChangeExtension(path, "tqz")))

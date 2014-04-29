@@ -1,9 +1,8 @@
-Implement error catching in I/O functionality
-
-Selecting/Adding images
-
 Quiz answering part
 
-Ask user to save on exit?
+Bonus:
+	Ask user to save on exit?
+	Revamp QuizCreator
 
-Remove quiz name/description?
+Heisenbugs:
+	Fix fields wiping when selecting selected question (after creation only?)

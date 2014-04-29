@@ -32,6 +32,7 @@
             this.addQuestionButton = new System.Windows.Forms.Button();
             this.removeQuestionButton = new System.Windows.Forms.Button();
             this.questionGroupBox = new System.Windows.Forms.GroupBox();
+            this.editAnswerButton = new System.Windows.Forms.Button();
             this.removeAnswerButton = new System.Windows.Forms.Button();
             this.addAnswerButton = new System.Windows.Forms.Button();
             this.answersListBox = new System.Windows.Forms.ListBox();
@@ -48,7 +49,6 @@
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.quitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.editAnswerButton = new System.Windows.Forms.Button();
             this.questionGroupBox.SuspendLayout();
             this.mainMenuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -100,6 +100,17 @@
             this.questionGroupBox.TabIndex = 3;
             this.questionGroupBox.TabStop = false;
             // 
+            // editAnswerButton
+            // 
+            this.editAnswerButton.Enabled = false;
+            this.editAnswerButton.Location = new System.Drawing.Point(91, 272);
+            this.editAnswerButton.Name = "editAnswerButton";
+            this.editAnswerButton.Size = new System.Drawing.Size(75, 23);
+            this.editAnswerButton.TabIndex = 9;
+            this.editAnswerButton.Text = "Edit";
+            this.editAnswerButton.UseVisualStyleBackColor = true;
+            this.editAnswerButton.Click += new System.EventHandler(this.editAnswerButton_Click);
+            // 
             // removeAnswerButton
             // 
             this.removeAnswerButton.Location = new System.Drawing.Point(305, 272);
@@ -146,6 +157,7 @@
             this.selectImageButton.TabIndex = 4;
             this.selectImageButton.Text = "Select Image";
             this.selectImageButton.UseVisualStyleBackColor = true;
+            this.selectImageButton.Click += new System.EventHandler(this.selectImageButton_Click);
             // 
             // questionTextBox
             // 
@@ -170,6 +182,7 @@
             this.questionTypeComboBox.Name = "questionTypeComboBox";
             this.questionTypeComboBox.Size = new System.Drawing.Size(121, 21);
             this.questionTypeComboBox.TabIndex = 1;
+            this.questionTypeComboBox.SelectedIndexChanged += new System.EventHandler(this.questionTypeComboBox_SelectedIndexChanged);
             // 
             // questionTypeLabel
             // 
@@ -234,17 +247,6 @@
             this.quitToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.quitToolStripMenuItem.Text = "&Quit";
             this.quitToolStripMenuItem.Click += new System.EventHandler(this.quitToolStripMenuItem_Click);
-            // 
-            // editAnswerButton
-            // 
-            this.editAnswerButton.Enabled = false;
-            this.editAnswerButton.Location = new System.Drawing.Point(91, 272);
-            this.editAnswerButton.Name = "editAnswerButton";
-            this.editAnswerButton.Size = new System.Drawing.Size(75, 23);
-            this.editAnswerButton.TabIndex = 9;
-            this.editAnswerButton.Text = "Edit";
-            this.editAnswerButton.UseVisualStyleBackColor = true;
-            this.editAnswerButton.Click += new System.EventHandler(this.editAnswerButton_Click);
             // 
             // QuizCreator
             // 
