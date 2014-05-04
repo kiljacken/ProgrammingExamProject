@@ -4,7 +4,3 @@ Extract strings to StringResources.cs
 
 Bonus:
 	Ask user to save on exit?
-	Revamp QuizCreator
-
-Heisenbugs:
-	Fix fields wiping when selecting selected question (after creation only?)
