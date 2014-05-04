@@ -1,8 +1,6 @@
-Answer count/QUestion text sanity checks
-
-Add correct answer
-
 Quiz answering part
+
+Extract strings to StringResources.cs
 
 Bonus:
 	Ask user to save on exit?

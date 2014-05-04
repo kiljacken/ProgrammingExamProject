@@ -14,6 +14,8 @@ namespace Eksamensprojekt
 {
     public partial class QuizCreator : Form
     {
+        private bool programmaticSelect = false;
+
         private Quiz _quiz;
         public Quiz SelectedQuiz
         {
@@ -107,6 +109,9 @@ namespace Eksamensprojekt
         {
             questionListBox.DataSource = null;
             questionListBox.DataSource = SelectedQuiz.Questions;
+
+            //selectQuestion(questionListBox.Items.IndexOf(SelectedQuestion));
+
             questionListBox.Refresh();
         }
 
@@ -123,7 +128,46 @@ namespace Eksamensprojekt
             SelectedQuestion = SelectedQuiz.AddQuestion();
 
             updateQuestionList();
-            questionListBox.SelectedIndex = 0;
+            selectQuestion(0);
+        }
+
+        private bool doSanityChecks()
+        {
+            if (programmaticSelect)
+                return true;
+
+            if (SelectedQuestion.Type == QuestionType.TEXT && SelectedQuestion.Text == "")
+            {
+                MessageBox.Show(StringResources.INVALID_QUESTION_TEXT, StringResources.INVALID_QUESTION_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return false;
+            }
+
+            if (SelectedQuestion.Type == QuestionType.IMAGE && (SelectedQuestion.ImageIndex >= 0 && SelectedQuestion.ImageIndex < SelectedQuiz.Images.Count))
+            {
+                MessageBox.Show(StringResources.INVALID_QUESTION_IMAGE, StringResources.INVALID_QUESTION_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return false;
+            }
+
+            if (SelectedQuestion.Answers.Count < 1)
+            {
+                MessageBox.Show(StringResources.INVALID_QUESTION_ANSWERS, StringResources.INVALID_QUESTION_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return false;
+            }
+
+            if (SelectedQuestion.CorrectAnswer < 0 || SelectedQuestion.CorrectAnswer > SelectedQuestion.Answers.Count)
+            {
+                MessageBox.Show(StringResources.INVALID_QUESTION_CORRECT_ANSWERS, StringResources.INVALID_QUESTION_TITLE, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return false;
+            }
+
+            return true;
+        }
+
+        private void selectQuestion(int index)
+        {
+            programmaticSelect = true;
+            questionListBox.SelectedIndex = index;
+            programmaticSelect = false;
         }
         #endregion
 
@@ -136,7 +180,7 @@ namespace Eksamensprojekt
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Filter = "Quiz Files (.qzi)|*.qzi";
+            dialog.Filter = StringResources.QZI_DIALOG_FILTER;
             dialog.FilterIndex = 0;
 
             if (dialog.ShowDialog() == DialogResult.OK)
@@ -153,7 +197,7 @@ namespace Eksamensprojekt
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveFileDialog dialog = new SaveFileDialog();
-            dialog.Filter = "Quiz Files (.qzi)|*.qzi";
+            dialog.Filter = StringResources.QZI_DIALOG_FILTER;
             dialog.FilterIndex = 0;
 
             if (dialog.ShowDialog() == DialogResult.OK)
@@ -171,7 +215,14 @@ namespace Eksamensprojekt
         #region Question List
         private void questionListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            SelectedQuestion = (Question)questionListBox.SelectedItem;
+            if (doSanityChecks())
+            {
+                SelectedQuestion = (Question)questionListBox.SelectedItem;
+            }
+            else
+            {
+                selectQuestion(questionListBox.Items.IndexOf(SelectedQuestion));
+            }
         }
 
         private void addQuestionButton_Click(object sender, EventArgs e)
@@ -221,7 +272,6 @@ namespace Eksamensprojekt
 
                 questionTextBox.Text = dialog.selectedIndex.ToString();
             }
-            // TODO: Handle image selection
         }
 
         #region Answers List
@@ -230,10 +280,20 @@ namespace Eksamensprojekt
             if (answersListBox.SelectedIndex <= -1)
             {
                 editAnswerButton.Enabled = false;
+                setCorrectAnswerButton.Enabled = false;
             }
             else
             {
                 editAnswerButton.Enabled = true;
+
+                if (answersListBox.SelectedIndex == SelectedQuestion.CorrectAnswer)
+                {
+                    setCorrectAnswerButton.Enabled = false;
+                }
+                else
+                {
+                    setCorrectAnswerButton.Enabled = true;
+                }
             }
         }
 
@@ -275,6 +335,15 @@ namespace Eksamensprojekt
             }
         }
         #endregion
+
+        private void setCorrectAnswerButton_Click(object sender, EventArgs e)
+        {
+            if (answersListBox.SelectedIndex > -1)
+            {
+                SelectedQuestion.CorrectAnswer = answersListBox.SelectedIndex;
+                setCorrectAnswerButton.Enabled = false;
+            }
+        }
         #endregion
     }
 }

@@ -49,6 +49,7 @@
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.quitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setCorrectAnswerButton = new System.Windows.Forms.Button();
             this.questionGroupBox.SuspendLayout();
             this.mainMenuStrip.SuspendLayout();
             this.SuspendLayout();
@@ -84,6 +85,7 @@
             // 
             // questionGroupBox
             // 
+            this.questionGroupBox.Controls.Add(this.setCorrectAnswerButton);
             this.questionGroupBox.Controls.Add(this.editAnswerButton);
             this.questionGroupBox.Controls.Add(this.removeAnswerButton);
             this.questionGroupBox.Controls.Add(this.addAnswerButton);
@@ -213,41 +215,52 @@
             this.toolStripSeparator1,
             this.quitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(35, 20);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.newToolStripMenuItem.Text = "&New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.openToolStripMenuItem.Text = "&Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.saveToolStripMenuItem.Text = "&Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(97, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(100, 6);
             // 
             // quitToolStripMenuItem
             // 
             this.quitToolStripMenuItem.Name = "quitToolStripMenuItem";
-            this.quitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.quitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.quitToolStripMenuItem.Text = "&Quit";
             this.quitToolStripMenuItem.Click += new System.EventHandler(this.quitToolStripMenuItem_Click);
+            // 
+            // setCorrectAnswerButton
+            // 
+            this.setCorrectAnswerButton.Enabled = false;
+            this.setCorrectAnswerButton.Location = new System.Drawing.Point(172, 272);
+            this.setCorrectAnswerButton.Name = "setCorrectAnswerButton";
+            this.setCorrectAnswerButton.Size = new System.Drawing.Size(106, 23);
+            this.setCorrectAnswerButton.TabIndex = 10;
+            this.setCorrectAnswerButton.Text = "Set Correct Answer";
+            this.setCorrectAnswerButton.UseVisualStyleBackColor = true;
+            this.setCorrectAnswerButton.Click += new System.EventHandler(this.setCorrectAnswerButton_Click);
             // 
             // QuizCreator
             // 
@@ -295,5 +308,6 @@
         private System.Windows.Forms.Label answersLabel;
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
         private System.Windows.Forms.Button editAnswerButton;
+        private System.Windows.Forms.Button setCorrectAnswerButton;
     }
 }
