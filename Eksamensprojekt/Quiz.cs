@@ -12,17 +12,31 @@ using System.Xml.Serialization;
 
 namespace Eksamensprojekt
 {
-    [Serializable()]
     public class Quiz
     {
         public List<QuestionReference> QuestionReferences = new List<QuestionReference>();
         public List<ImageReference> ImageReferences = new List<ImageReference>();
 
-        [field: NonSerialized()]
-        public List<Question> Questions;
+        [XmlIgnore]
+        public List<Question> Questions = new List<Question>();
 
-        [field: NonSerialized()]
-        public List<Image> Images;
+        [XmlIgnore]
+        public List<Image> Images = new List<Image>();
+
+        public Question AddQuestion()
+        {
+            Question question = new Question();
+            question.QuestionId = "Question" + Questions.Count;
+
+            Questions.Add(question);
+
+            return question;
+        }
+
+        public void RemoveQuestion(Question question)
+        {
+            Questions.Remove(question);
+        }
 
         public void RemoveImage(int index)
         {
@@ -84,9 +98,13 @@ namespace Eksamensprojekt
         public static void StoreToZip(Quiz quiz, String path)
         {
             Boolean cleanup = false;
+            string backup = path + ".bak";
             if (File.Exists(path))
             {
-                File.Move(path, Path.ChangeExtension(path, "tqz"));
+                if (File.Exists(backup))
+                    File.Delete(backup);
+
+                File.Move(path, backup);
                 cleanup = true;
             }
 
@@ -124,18 +142,18 @@ namespace Eksamensprojekt
             }
             catch(Exception e)
             {
-                if (cleanup && File.Exists(Path.ChangeExtension(path, "tqz")))
+                if (cleanup && File.Exists(backup))
                 {
-                    File.Move(Path.ChangeExtension(path, "tqz"), path);
+                    File.Move(backup, path);
                     return;
                 }
 
                 MessageBox.Show("Error while saving quiz:\n" + e.ToString());
             }
 
-            if (cleanup && File.Exists(Path.ChangeExtension(path, "tqz")))
+            if (cleanup && File.Exists(backup))
             {
-                File.Delete(Path.ChangeExtension(path, "tqz"));
+                File.Delete(backup);
                 return;
             }
         }
@@ -179,6 +197,7 @@ namespace Eksamensprojekt
         public String Text = "";
         public int ImageIndex = -1;
         public List<String> Answers = new List<String>();
+        public int CorrectAnswer = -1;
 
         public override String ToString()
         {

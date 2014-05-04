@@ -1,3 +1,7 @@
+Answer count/QUestion text sanity checks
+
+Add correct answer
+
 Quiz answering part
 
 Bonus:

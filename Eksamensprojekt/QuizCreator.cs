@@ -14,190 +14,237 @@ namespace Eksamensprojekt
 {
     public partial class QuizCreator : Form
     {
-        private Quiz quiz;
-        private Question previouslySelectedQuestion;
-        private int lastIndex = -1;
+        private Quiz _quiz;
+        public Quiz SelectedQuiz
+        {
+            get
+            {
+                return _quiz;
+            }
+
+            set
+            {
+                _quiz = value;
+
+                updateQuestionList();
+            }
+        }
+
+        private Question _question;
+        private Question SelectedQuestion
+        {
+            get
+            {
+                return _question;
+            }
+
+            set
+            {
+                _question = value;
+
+                if (_question != null)
+                {
+                    questionGroupBox.Enabled = true;
+
+                    questionTypeComboBox.SelectedItem = _question.Type;
+
+                    updateType(_question.Type, false);
+                    questionTextBox.Text = _question.Type == QuestionType.TEXT ? _question.Text : _question.ImageIndex.ToString();
+
+                    updateAnswerList();
+                }
+                else
+                {
+                    questionGroupBox.Enabled = false;
+
+                    questionTypeComboBox.SelectedItem = null;
+                    questionTextBox.Text = "";
+                    
+                    answersListBox.DataSource = null;
+                }
+            }
+        }
 
         public QuizCreator()
         {
             InitializeComponent();
         }
 
-        #region Setup
         private void QuizCreator_Load(object sender, EventArgs e)
         {
-            setupNew();
-
             questionTypeComboBox.DataSource = Enum.GetValues(typeof(QuestionType));
             questionTypeComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+
+            setupNewQuiz();
         }
-        
-        private void setupNew()
+
+        #region Helpers
+        private void updateType(QuestionType newType, bool set = true)
         {
-            quiz = new Quiz();
-            quiz.Name = "Unnamed Quiz";
-            quiz.Description = "Descriptionless";
-            quiz.QuestionReferences = new List<QuestionReference>();
-            quiz.ImageReferences = new List<ImageReference>();
-            quiz.Questions = new List<Question>();
-            quiz.Images = new List<Image>();
+            if (SelectedQuestion == null)
+                return;
 
-            previouslySelectedQuestion = null;
+            if (set)
+                SelectedQuestion.Type = newType;
 
-            setupList();
+            if (newType == QuestionType.IMAGE)
+            {
+                questionTextBox.Enabled = false;
+                selectImageButton.Enabled = true;
 
-            addQuestionButton_Click(null, null);
+                questionTextBox.Text = SelectedQuestion.ImageIndex.ToString();
+            }
+            else
+            {
+                questionTextBox.Enabled = true;
+                selectImageButton.Enabled = false;
+
+                questionTextBox.Text = SelectedQuestion.Text;
+            }
         }
 
-        private void setupList()
+        private void updateQuestionList()
         {
             questionListBox.DataSource = null;
-            questionListBox.DataSource = quiz.Questions;
+            questionListBox.DataSource = SelectedQuiz.Questions;
+            questionListBox.Refresh();
         }
 
-        private void setupAnswers()
+        private void updateAnswerList()
         {
             answersListBox.DataSource = null;
-            answersListBox.DataSource = previouslySelectedQuestion.Answers;
+            answersListBox.DataSource = _question.Answers;
+            questionListBox.Refresh();
+        }
+
+        private void setupNewQuiz()
+        {
+            SelectedQuiz = new Quiz();
+            SelectedQuestion = SelectedQuiz.AddQuestion();
+
+            updateQuestionList();
+            questionListBox.SelectedIndex = 0;
         }
         #endregion
 
-        #region Tool Strip Menu
+        #region Tool Strip
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            setupNew();
+            setupNewQuiz();
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
-
             dialog.Filter = "Quiz Files (.qzi)|*.qzi";
             dialog.FilterIndex = 0;
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                quiz = Quiz.LoadFromZip(dialog.FileName);
+                Quiz quiz = Quiz.LoadFromZip(dialog.FileName);
+
                 if (quiz != null)
-                    setupList();    
+                    SelectedQuiz = quiz;
+                else
+                    MessageBox.Show("Error while opening quiz", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            savePreviousQuestion();
-
             SaveFileDialog dialog = new SaveFileDialog();
-
             dialog.Filter = "Quiz Files (.qzi)|*.qzi";
             dialog.FilterIndex = 0;
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
-                Quiz.StoreToZip(quiz, dialog.FileName);
+                Quiz.StoreToZip(SelectedQuiz, dialog.FileName);
             }
         }
 
         private void quitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
-        } 
-        #endregion
-
-        #region Question Selection
-        private void questionListBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (questionListBox.SelectedIndex == lastIndex)
-                return;
-
-            int nil;
-            if ((QuestionType) questionTypeComboBox.SelectedValue == QuestionType.IMAGE &&
-                !Int32.TryParse(questionTextBox.Text, out nil))
-            {
-                MessageBox.Show("Please select a image for the question!");
-
-                questionListBox.SelectedIndex = lastIndex;
-                return;
-            }
-
-            savePreviousQuestion();
-            loadSelectedQuestion();
-            lastIndex = questionListBox.SelectedIndex;
-        }
-
-        private void savePreviousQuestion()
-        {
-            if (previouslySelectedQuestion == null)
-                return;
-
-            previouslySelectedQuestion.Type = (QuestionType)questionTypeComboBox.SelectedValue;
-
-            if (previouslySelectedQuestion.Type == QuestionType.TEXT)
-            {
-                previouslySelectedQuestion.Text = questionTextBox.Text;
-            }
-            else
-            {
-                previouslySelectedQuestion.ImageIndex = Int32.Parse(questionTextBox.Text);
-            }
-            
-        }
-
-        private void loadSelectedQuestion()
-        {
-            if (questionListBox.SelectedItem == null)
-                return;
-
-            Question question = (Question)questionListBox.SelectedItem;
-
-            questionTypeComboBox.SelectedItem = question.Type;
-
-            if (question.Type == QuestionType.TEXT)
-            {
-                questionTextBox.Text = question.Text;
-            }
-            else
-            {
-                questionTextBox.Text = question.ImageIndex.ToString();
-            }
-
-            previouslySelectedQuestion = question;
-            setupAnswers();
         }
         #endregion
 
         #region Question List
+        private void questionListBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            SelectedQuestion = (Question)questionListBox.SelectedItem;
+        }
+
         private void addQuestionButton_Click(object sender, EventArgs e)
         {
-            Question question = new Question();
-            question.QuestionId = "Question" + questionListBox.Items.Count;
+            SelectedQuiz.AddQuestion();
 
-            quiz.Questions.Add(question);
-
-            setupList();
+            updateQuestionList();
         }
 
         private void removeQuestionButton_Click(object sender, EventArgs e)
         {
-            if (questionListBox.SelectedItem == null)
-                return;
+            SelectedQuiz.RemoveQuestion(SelectedQuestion);
+            SelectedQuestion = null;
 
-            Question question = (Question)questionListBox.SelectedItem;
-
-            quiz.Questions.Remove(question);
-
-            setupList();
-        } 
+            updateQuestionList();
+        }
         #endregion
 
-        #region Answer List
+        #region Question Editing
+        private void questionTypeComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (questionTypeComboBox.SelectedItem != null)
+                updateType((QuestionType)questionTypeComboBox.SelectedItem);
+        }
+
+        private void questionTextBox_TextChanged(object sender, EventArgs e)
+        {
+            if (SelectedQuestion == null)
+                return;
+
+            if (SelectedQuestion.Type == QuestionType.IMAGE)
+            {
+                Int32.TryParse(questionTextBox.Text, out SelectedQuestion.ImageIndex);
+            }
+            else
+            {
+                SelectedQuestion.Text = questionTextBox.Text;
+            }
+        }
+
+        private void selectImageButton_Click(object sender, EventArgs e)
+        {
+            ImageDialog dialog = new ImageDialog(SelectedQuiz);
+
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+
+                questionTextBox.Text = dialog.selectedIndex.ToString();
+            }
+            // TODO: Handle image selection
+        }
+
+        #region Answers List
+        private void answersListBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (answersListBox.SelectedIndex <= -1)
+            {
+                editAnswerButton.Enabled = false;
+            }
+            else
+            {
+                editAnswerButton.Enabled = true;
+            }
+        }
+
         private void addAnswerButton_Click(object sender, EventArgs e)
         {
             String answer = Interaction.InputBox("Input answer here", "Answer creation");
             if (answer.Length > 0)
             {
-                previouslySelectedQuestion.Answers.Add(answer);
-                setupAnswers();
+                SelectedQuestion.Answers.Add(answer);
+
+                updateAnswerList();
             }
         }
 
@@ -205,12 +252,16 @@ namespace Eksamensprojekt
         {
             int index = answersListBox.SelectedIndex;
 
+            if (index < 0)
+                return;
+
             String answer = Interaction.InputBox("Input answer here", "Answer creation", (String)answersListBox.Items[index]);
             if (answer.Length > 0)
             {
-                previouslySelectedQuestion.Answers.RemoveAt(index);
-                previouslySelectedQuestion.Answers.Insert(index, answer);
-                setupAnswers();
+                SelectedQuestion.Answers.RemoveAt(index);
+                SelectedQuestion.Answers.Insert(index, answer);
+
+                updateAnswerList();
             }
         }
 
@@ -218,40 +269,12 @@ namespace Eksamensprojekt
         {
             if (answersListBox.SelectedIndex > -1)
             {
-                previouslySelectedQuestion.Answers.RemoveAt(answersListBox.SelectedIndex);
-                setupAnswers();
-            }
-        }
+                SelectedQuestion.Answers.RemoveAt(answersListBox.SelectedIndex);
 
-        private void answersListBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            editAnswerButton.Enabled = answersListBox.SelectedIndex > -1;
+                updateAnswerList();
+            }
         }
         #endregion
-
-        private void selectImageButton_Click(object sender, EventArgs e)
-        {
-            ImageDialog dialog = new ImageDialog(quiz);
-
-            if (dialog.ShowDialog() == DialogResult.OK)
-            {
-                questionTextBox.Text = dialog.selectedIndex.ToString();
-            }
-        }
-
-        private void questionTypeComboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            questionTextBox.Text = "";
-            if ((QuestionType) questionTypeComboBox.SelectedValue == QuestionType.TEXT)
-            {
-                questionTextBox.Enabled = true;
-                selectImageButton.Enabled = false;
-            }
-            else
-            {
-                questionTextBox.Enabled = false;
-                selectImageButton.Enabled = true;
-            }
-        }
+        #endregion
     }
 }
