@@ -29,11 +29,19 @@ namespace Eksamensprojekt
 
         private void takeQuizButton_Click(object sender, EventArgs e)
         {
-            this.Visible = false;
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = StringResources.QZI_DIALOG_FILTER;
+            dialog.FilterIndex = 0;
 
-            new QuizCreator().ShowDialog();
+            if (dialog.ShowDialog() == DialogResult.OK)
+            {
+                Quiz quiz = Quiz.LoadFromZip(dialog.FileName);
 
-            this.Close();
+                this.Visible = false;
+                new QuizAnswerer(quiz).ShowDialog();
+
+                this.Close();
+            }
         }
     }
 }

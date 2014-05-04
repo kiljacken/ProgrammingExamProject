@@ -133,7 +133,7 @@ namespace Eksamensprojekt
 
         private bool doSanityChecks()
         {
-            if (programmaticSelect)
+            if (programmaticSelect || SelectedQuestion == null)
                 return true;
 
             if (SelectedQuestion.Type == QuestionType.TEXT && SelectedQuestion.Text == "")
