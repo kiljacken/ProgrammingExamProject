@@ -56,8 +56,10 @@ namespace Eksamensprojekt
 
             if (questionIndex == quiz.Questions.Count)
             {
-                Console.WriteLine(string.Join(", ", correctAnswers));
-                // TODO: Stats time
+                int numCorrect = correctAnswers.Where((item) => item).Count();
+
+                MessageBox.Show("You had " + numCorrect + " correct answers");
+                
                 this.Close();
                 return;
             }
