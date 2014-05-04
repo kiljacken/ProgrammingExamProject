@@ -34,6 +34,7 @@ namespace Eksamensprojekt
 
         private void QuizAnswerer_Load(object sender, EventArgs e)
         {
+            questionPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             nextQuestionButton_Click(null, null);
         }
 
